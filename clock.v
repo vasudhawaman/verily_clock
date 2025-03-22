@@ -32,3 +32,27 @@ module clock_gen (	input      enable,
     clk <= 0;
     start_clk <= 0;
   end
+
+   always @ (posedge enable or negedge enable) begin
+    if (enable) begin
+      #(start_dly) start_clk = 1;
+    end else begin
+      #(start_dly) start_clk = 0;
+    end
+  end
+
+  // Achieve duty cycle by a skewed clock on/off time and let this
+  // run as long as the clocks are turned on.
+  always @(posedge start_clk) begin
+    if (start_clk) begin
+      	clk = 1;
+
+      	while (start_clk) begin
+      		#(clk_on)  clk = 0;
+    		#(clk_off) clk = 1;
+        end
+
+      	clk = 0;
+    end
+  end
+endmodule
